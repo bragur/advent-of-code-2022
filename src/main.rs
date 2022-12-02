@@ -13,17 +13,18 @@ fn vecs_from_file(filename: impl AsRef<Path>) -> Vec<String> {
         .collect()
 }
 
-fn find_max(input: Vec<String>) -> (i32, Vec<i32>) {
-    let mut pickles: Vec<i32> = Vec::new();
+// #1 ⭐ / #2 ⭐
+fn _find_max(input: Vec<String>) -> (i32, i32) {
+    let mut calorie_collection: Vec<i32> = Vec::new();
     let (max, _) = input.into_iter().fold(
         (0, 0),
         |(current_max, current_elf_accumulation), calories_string| {
             let mut result = (current_max, current_elf_accumulation);
             if calories_string.is_empty() && current_elf_accumulation > current_max {
-                pickles.push(current_elf_accumulation);
+                calorie_collection.push(current_elf_accumulation);
                 result = (current_elf_accumulation, 0);
             } else if calories_string.is_empty() {
-                pickles.push(current_elf_accumulation);
+                calorie_collection.push(current_elf_accumulation);
                 result = (current_max, 0);
             }
             if let Ok(calories) = calories_string.parse::<i32>() {
@@ -32,7 +33,31 @@ fn find_max(input: Vec<String>) -> (i32, Vec<i32>) {
             result
         },
     );
-    (max, pickles)
+
+    calorie_collection.sort();
+    calorie_collection.reverse();
+    calorie_collection.truncate(3);
+
+    (max, calorie_collection.iter().fold(0, |acc, x| acc + x))
+}
+
+// #3 ⭐ / #4 ⭐
+fn _get_score(lines: Vec<String>) -> (i32, i32) {
+    lines.iter().fold((0, 0), |acc, x| {
+        let score = match x.as_str() {
+            "A X" => (4, 3),
+            "A Y" => (8, 4),
+            "A Z" => (3, 8),
+            "B X" => (1, 1),
+            "B Y" => (5, 5),
+            "B Z" => (9, 9),
+            "C X" => (1, 2),
+            "C Y" => (6, 6),
+            "C Z" => (7, 7),
+            _ => (0, 0),
+        };
+        (acc.0 + score.0, acc.1 + score.1)
+    })
 }
 
 fn main() {
@@ -40,19 +65,12 @@ fn main() {
 
     let file_path: &String = &args[1];
     println!("File: {}", file_path);
-    let vecs = vecs_from_file(file_path);
 
+    let lines = vecs_from_file(file_path);
     use std::time::Instant;
     let now = Instant::now();
-    let (max, calory_vec) = find_max(vecs);
-    let mut cal_copy = calory_vec.clone();
-    cal_copy.sort();
-    cal_copy.reverse();
-    cal_copy.truncate(3);
-    let sum_of_top_three = cal_copy.iter().fold(0, |sum, x| sum + x);
+    let score = _find_max(lines);
     let elapsed = now.elapsed();
-    println!("Max calories: {}", max);
-    println!("Top 3: {:?}", cal_copy);
-    println!("Sum of top 3: {}", sum_of_top_three);
+    println!("Score: {:?}", score);
     println!("Elapsed: {:.2?}", elapsed);
 }
