@@ -4,7 +4,6 @@ use std::{
     io::{prelude::*, BufReader},
     path::Path,
 };
-use substring::Substring;
 
 fn vecs_from_file(filename: impl AsRef<Path>) -> Vec<String> {
     let file: File = File::open(filename).expect("no such file");
@@ -61,23 +60,37 @@ fn _rock_paper_scissors(lines: Vec<String>) -> (i32, i32) {
     })
 }
 
+// #5 ⭐ / #6 ⭐
 fn rucksack_reorganization(lines: Vec<String>) -> i32 {
-    lines.iter().fold(0, |acc, x| {
-        let first = x.substring(0, x.len() / 2);
-        let second = x.substring(x.len() / 2, x.len());
+    let init_vec: Vec<String> = Vec::new();
+    let (result, _noop) = lines.iter().fold((0, init_vec), |mut acc, x| {
+        if acc.1.len() < 3 {
+            acc.1.push(x.to_string());
+        }
         let mut result = 0;
-        for c in first.chars() {
-            if second.find(c) != None {
-                result = if c.is_uppercase() {
-                    c as i32 - 38
-                } else {
-                    c as i32 - 96
-                };
-                break;
+        if acc.1.len() == 3 {
+            match (acc.1.get(0), acc.1.get(1), acc.1.get(2)) {
+                (Some(first), Some(second), Some(third)) => {
+                    for c in first.chars() {
+                        if second.find(c) != None && third.find(c) != None {
+                            result = if c.is_uppercase() {
+                                c as i32 - 38
+                            } else {
+                                c as i32 - 96
+                            };
+
+                            acc.1 = Vec::new();
+                            break;
+                        }
+                    }
+                }
+                _ => (),
             }
         }
-        acc + result
-    })
+        (acc.0 + result, acc.1)
+    });
+
+    result
 }
 
 fn main() {
