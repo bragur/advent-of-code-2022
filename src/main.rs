@@ -93,7 +93,7 @@ fn _rucksack_reorganization(lines: Vec<String>) -> i32 {
 }
 
 // #7 ⭐
-fn camp_cleanup(input: Vec<String>) -> i32 {
+fn _camp_cleanup_1(input: Vec<String>) -> i32 {
     input.iter().fold(0, |acc, x| {
         let pairs = x.split_once(',').unwrap();
         let _first_section = pairs.0.split_once('-').unwrap();
@@ -118,6 +118,29 @@ fn camp_cleanup(input: Vec<String>) -> i32 {
     })
 }
 
+// #8 ⭐
+fn camp_cleanup_2(input: Vec<String>) -> i32 {
+    input.iter().fold(0, |acc, x| {
+        let pairs = x.split_once(',').unwrap();
+        let _first_section = pairs.0.split_once('-').unwrap();
+        let first_section = (
+            _first_section.0.parse::<i32>().unwrap(),
+            _first_section.1.parse::<i32>().unwrap(),
+        );
+        let _second_section = pairs.1.split_once('-').unwrap();
+        let second_section = (
+            _second_section.0.parse::<i32>().unwrap(),
+            _second_section.1.parse::<i32>().unwrap(),
+        );
+        let overlaps = first_section.0 <= second_section.1 && second_section.0 <= first_section.1;
+        if overlaps {
+            acc + 1
+        } else {
+            acc
+        }
+    })
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -127,7 +150,7 @@ fn main() {
     let lines = vecs_from_file(file_path);
     use std::time::Instant;
     let now = Instant::now();
-    let sum = camp_cleanup(lines);
+    let sum = camp_cleanup_2(lines);
     println!("Score: {}", sum);
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);
